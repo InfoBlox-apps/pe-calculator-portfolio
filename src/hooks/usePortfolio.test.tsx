@@ -2,20 +2,21 @@
 import { renderHook, act, waitFor } from '@/utils/test-utils';
 import { usePortfolio } from './usePortfolio';
 import { fetchStockData, savePortfolio, loadPortfolio } from '@/services/stockService';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock the stock service functions
-jest.mock('@/services/stockService', () => ({
-  fetchStockData: jest.fn(),
-  savePortfolio: jest.fn(),
-  loadPortfolio: jest.fn().mockReturnValue({ stocks: [] }),
+vi.mock('@/services/stockService', () => ({
+  fetchStockData: vi.fn(),
+  savePortfolio: vi.fn(),
+  loadPortfolio: vi.fn().mockReturnValue({ stocks: [] }),
 }));
 
 // Mock the toast function
-jest.mock('sonner', () => ({
+vi.mock('sonner', () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
   },
 }));
 
@@ -33,9 +34,9 @@ describe('usePortfolio', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (fetchStockData as jest.Mock).mockResolvedValue(mockStock);
-    (loadPortfolio as jest.Mock).mockReturnValue({ stocks: [] });
+    vi.clearAllMocks();
+    (fetchStockData as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockStock);
+    (loadPortfolio as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ stocks: [] });
   });
 
   it('should initialize with an empty portfolio', () => {
@@ -114,7 +115,7 @@ describe('usePortfolio', () => {
       peRatio: 10.5,
     };
     
-    (fetchStockData as jest.Mock).mockResolvedValue(secondStock);
+    (fetchStockData as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(secondStock);
     
     await act(async () => {
       await result.current.addStock('TCS');

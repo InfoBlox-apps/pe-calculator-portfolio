@@ -6,6 +6,7 @@ import {
   classifyPE, 
   getPEColorClass 
 } from './formatters';
+import { describe, it, expect } from 'vitest';
 
 describe('Formatter Utils', () => {
   describe('formatCurrency', () => {

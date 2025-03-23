@@ -5,18 +5,19 @@
 import '@testing-library/jest-dom';
 
 // Mock the matchMedia function which is not available in the test environment
-window.matchMedia = window.matchMedia || function() {
-  return {
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
     matches: false,
-    addListener: function() {},
-    removeListener: function() {},
-    addEventListener: function() {},
-    removeEventListener: function() {},
-    dispatchEvent: function() {
-      return false;
-    },
-  };
-};
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(() => false),
+  })),
+});
 
 // Mock IntersectionObserver which is not available in the test environment
 class MockIntersectionObserver {
@@ -46,15 +47,30 @@ Object.defineProperty(window, 'ResizeObserver', {
 
 // Mock document.createRange which is used by some DOM testing libraries
 if (typeof document.createRange !== 'function') {
-  document.createRange = () => ({
-    setStart: () => {},
-    setEnd: () => {},
-    commonAncestorContainer: {
-      nodeName: 'BODY',
-      ownerDocument: document,
-    },
-    getClientRects: () => [{ top: 0, left: 0, bottom: 0, right: 0 }],
-  });
+  document.createRange = () => {
+    const range = {
+      setStart: jest.fn(),
+      setEnd: jest.fn(),
+      commonAncestorContainer: {
+        nodeName: 'BODY',
+        ownerDocument: document,
+      } as unknown as Node,
+      getClientRects: () => [
+        {
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          height: 0,
+          width: 0,
+          x: 0,
+          y: 0,
+          toJSON: jest.fn(),
+        } as DOMRect,
+      ],
+    } as unknown as Range;
+    return range;
+  };
 }
 
 // This handles async component updates

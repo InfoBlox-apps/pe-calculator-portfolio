@@ -2,19 +2,20 @@
 import { render, screen, fireEvent, waitFor } from '../utils/test-utils';
 import { AddStockForm } from './AddStockForm';
 import { searchStocks } from '@/services/stockService';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock the searchStocks service
-jest.mock('@/services/stockService', () => ({
-  searchStocks: jest.fn(),
+vi.mock('@/services/stockService', () => ({
+  searchStocks: vi.fn(),
 }));
 
 describe('AddStockForm', () => {
-  const mockOnAddStock = jest.fn().mockResolvedValue(true);
+  const mockOnAddStock = vi.fn().mockResolvedValue(true);
   
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Mock implementation of searchStocks
-    (searchStocks as jest.Mock).mockResolvedValue([
+    (searchStocks as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
       { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.' },
       { symbol: 'TCS', name: 'Tata Consultancy Services Ltd.' },
     ]);

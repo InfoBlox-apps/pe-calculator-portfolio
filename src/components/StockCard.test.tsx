@@ -1,6 +1,7 @@
 
 import { render, screen, fireEvent } from '../utils/test-utils';
 import { StockCard } from './StockCard';
+import { describe, it, expect, vi } from 'vitest';
 
 describe('StockCard', () => {
   const mockStock = {
@@ -15,7 +16,7 @@ describe('StockCard', () => {
     lastUpdated: new Date().toISOString(),
   };
   
-  const mockOnRemove = jest.fn();
+  const mockOnRemove = vi.fn();
 
   it('renders stock details correctly', () => {
     render(<StockCard stock={mockStock} onRemove={mockOnRemove} />);
