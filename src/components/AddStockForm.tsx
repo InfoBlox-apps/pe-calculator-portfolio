@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/card';
 import { Search, Plus, Loader2 } from 'lucide-react';
 import { searchStocks } from '@/services/stockService';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 
 interface AddStockFormProps {
   onAddStock: (symbol: string) => Promise<boolean>;
@@ -73,43 +74,49 @@ export function AddStockForm({ onAddStock, loading }: AddStockFormProps) {
             </PopoverTrigger>
             <PopoverContent className="p-0" align="start" sideOffset={5} style={{ width: 'calc(var(--popover-trigger-width))', minWidth: '300px' }}>
               <Command className="rounded-lg border shadow-md">
-                <CommandInput 
-                  placeholder="Type stock name or symbol..." 
-                  value={symbol}
-                  onValueChange={handleSearch}
-                  className="h-9"
-                  autoFocus
-                  data-testid="stock-search-input"
-                />
+                <div className="flex items-center border-b px-3">
+                  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                  <Input 
+                    placeholder="Type stock name or symbol..." 
+                    value={symbol}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="flex h-11 w-full rounded-md border-none bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    autoFocus
+                    data-testid="stock-search-input"
+                  />
+                </div>
+                
                 {searching && (
                   <div className="flex items-center justify-center py-6">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
                 )}
-                {!searching && (
-                  <CommandList>
+                
+                <CommandList>
+                  {!searching && searchResults.length === 0 && (
                     <CommandEmpty>No stocks found</CommandEmpty>
-                    {searchResults.length > 0 && (
-                      <CommandGroup heading="Stocks">
-                        {searchResults.map((stock) => (
-                          <CommandItem
-                            key={stock.symbol}
-                            value={stock.symbol}
-                            onSelect={handleSelectStock}
-                            className="flex justify-between"
-                            data-testid={`stock-result-${stock.symbol}`}
-                          >
-                            <div>
-                              <span className="font-medium">{stock.symbol}</span>
-                              <span className="text-sm text-muted-foreground ml-2">{stock.name}</span>
-                            </div>
-                            <Plus className="h-4 w-4 text-muted-foreground" />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    )}
-                  </CommandList>
-                )}
+                  )}
+                  
+                  {searchResults.length > 0 && (
+                    <CommandGroup heading="Stocks">
+                      {searchResults.map((stock) => (
+                        <CommandItem
+                          key={stock.symbol}
+                          value={stock.symbol}
+                          onSelect={handleSelectStock}
+                          className="flex justify-between"
+                          data-testid={`stock-result-${stock.symbol}`}
+                        >
+                          <div>
+                            <span className="font-medium">{stock.symbol}</span>
+                            <span className="text-sm text-muted-foreground ml-2">{stock.name}</span>
+                          </div>
+                          <Plus className="h-4 w-4 text-muted-foreground" />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+                </CommandList>
               </Command>
             </PopoverContent>
           </Popover>
