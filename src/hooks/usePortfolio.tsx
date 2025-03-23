@@ -11,12 +11,14 @@ export function usePortfolio() {
   // Load the portfolio from localStorage on initial render
   useEffect(() => {
     const savedPortfolio = loadPortfolio();
-    setPortfolio(savedPortfolio);
+    if (savedPortfolio && savedPortfolio.stocks) {
+      setPortfolio(savedPortfolio);
+    }
   }, []);
 
   // Save the portfolio to localStorage whenever it changes
   useEffect(() => {
-    if (portfolio.stocks.length > 0) {
+    if (portfolio?.stocks?.length > 0) {
       savePortfolio(portfolio);
     }
   }, [portfolio]);
@@ -24,7 +26,7 @@ export function usePortfolio() {
   // Add a stock to the portfolio
   const addStock = useCallback(async (symbol: string) => {
     // Check if the stock is already in the portfolio
-    if (portfolio.stocks.some(stock => stock.symbol === symbol.toUpperCase())) {
+    if (portfolio?.stocks?.some(stock => stock.symbol === symbol.toUpperCase())) {
       toast.info(`${symbol.toUpperCase()} is already in your portfolio`);
       return false;
     }
@@ -35,7 +37,7 @@ export function usePortfolio() {
       if (stockData) {
         setPortfolio(prev => ({
           ...prev,
-          stocks: [...prev.stocks, stockData]
+          stocks: [...(prev?.stocks || []), stockData]
         }));
         toast.success(`Added ${stockData.symbol} to portfolio`);
         return true;
@@ -54,19 +56,19 @@ export function usePortfolio() {
   const removeStock = useCallback((symbol: string) => {
     setPortfolio(prev => ({
       ...prev,
-      stocks: prev.stocks.filter(stock => stock.symbol !== symbol)
+      stocks: prev?.stocks?.filter(stock => stock.symbol !== symbol) || []
     }));
     toast.success(`Removed ${symbol} from portfolio`);
   }, []);
 
   // Refresh all stocks in the portfolio
   const refreshPortfolio = useCallback(async () => {
-    if (portfolio.stocks.length === 0) return;
+    if (!portfolio?.stocks?.length) return;
     
     setRefreshing(true);
     try {
       const updatedStocks = await Promise.all(
-        portfolio.stocks.map(async (stock) => {
+        (portfolio.stocks || []).map(async (stock) => {
           const updated = await fetchStockData(stock.symbol);
           return updated || stock;
         })
@@ -88,7 +90,7 @@ export function usePortfolio() {
 
   // Calculate portfolio statistics
   const getPortfolioStats = useCallback(() => {
-    if (portfolio.stocks.length === 0) {
+    if (!portfolio?.stocks?.length) {
       return {
         averagePE: 0,
         highestPE: { symbol: '', value: 0 },
