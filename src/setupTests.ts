@@ -3,27 +3,28 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock the matchMedia function which is not available in the test environment
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(() => false),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(() => false),
   })),
 });
 
 // Mock IntersectionObserver which is not available in the test environment
 class MockIntersectionObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
 }
 
 Object.defineProperty(window, 'IntersectionObserver', {
@@ -34,9 +35,9 @@ Object.defineProperty(window, 'IntersectionObserver', {
 
 // Mock ResizeObserver which is not available in the test environment
 class MockResizeObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
 }
 
 Object.defineProperty(window, 'ResizeObserver', {
@@ -49,8 +50,8 @@ Object.defineProperty(window, 'ResizeObserver', {
 if (typeof document.createRange !== 'function') {
   document.createRange = () => {
     const range = {
-      setStart: jest.fn(),
-      setEnd: jest.fn(),
+      setStart: vi.fn(),
+      setEnd: vi.fn(),
       commonAncestorContainer: {
         nodeName: 'BODY',
         ownerDocument: document,
@@ -65,7 +66,7 @@ if (typeof document.createRange !== 'function') {
           width: 0,
           x: 0,
           y: 0,
-          toJSON: jest.fn(),
+          toJSON: vi.fn(),
         } as DOMRect,
       ],
     } as unknown as Range;
@@ -74,4 +75,4 @@ if (typeof document.createRange !== 'function') {
 }
 
 // This handles async component updates
-jest.setTimeout(10000);
+vi.setTimeout(10000);
