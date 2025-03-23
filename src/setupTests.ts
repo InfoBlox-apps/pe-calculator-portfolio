@@ -75,4 +75,5 @@ if (typeof document.createRange !== 'function') {
 }
 
 // This handles async component updates
-vi.setTimeout(10000);
+// Using the correct Vitest API for timeout
+vi.setConfig({ testTimeout: 10000 });
