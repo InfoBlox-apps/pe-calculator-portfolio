@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Search, Plus, Loader2 } from 'lucide-react';
 import { searchStocks } from '@/services/stockService';
@@ -21,6 +20,7 @@ export function AddStockForm({ onAddStock, loading }: AddStockFormProps) {
 
   const handleSearch = async (value: string) => {
     setSymbol(value);
+    
     if (value.length >= 2) {
       setSearching(true);
       try {
@@ -64,6 +64,8 @@ export function AddStockForm({ onAddStock, loading }: AddStockFormProps) {
                 role="combobox"
                 aria-expanded={open}
                 className="justify-between w-full font-normal"
+                onClick={() => setOpen(true)}
+                data-testid="stock-search-button"
               >
                 {symbol ? symbol.toUpperCase() : "Search for a stock..."}
                 <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -76,6 +78,8 @@ export function AddStockForm({ onAddStock, loading }: AddStockFormProps) {
                   value={symbol}
                   onValueChange={handleSearch}
                   className="h-9"
+                  autoFocus
+                  data-testid="stock-search-input"
                 />
                 {searching && (
                   <div className="flex items-center justify-center py-6">
@@ -93,6 +97,7 @@ export function AddStockForm({ onAddStock, loading }: AddStockFormProps) {
                             value={stock.symbol}
                             onSelect={handleSelectStock}
                             className="flex justify-between"
+                            data-testid={`stock-result-${stock.symbol}`}
                           >
                             <div>
                               <span className="font-medium">{stock.symbol}</span>
@@ -114,6 +119,7 @@ export function AddStockForm({ onAddStock, loading }: AddStockFormProps) {
           onClick={handleAddStock} 
           disabled={loading || !symbol.trim()}
           className="min-w-24"
+          data-testid="add-stock-button"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
