@@ -51,7 +51,11 @@ const Index = () => {
                       <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-xs">Stock data is updated daily. Last price: EOD values.</p>
+                      <div className="max-w-xs space-y-2">
+                        <p>Stock data is fetched from NSE India using our API.</p>
+                        <p>Data is updated once daily (EOD values).</p>
+                        <p>HDFC Bank's actual P/E is ~19.5 as per screener.in</p>
+                      </div>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -118,7 +122,7 @@ const Index = () => {
       <footer className="py-6 border-t border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <p className="text-center text-sm text-muted-foreground">
-            NSE P/E Calculator — Data is updated daily (simulated for demonstration).
+            NSE P/E Calculator — Using real NSE India stock data updated daily.
           </p>
         </div>
       </footer>
