@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface StockData {
   symbol: string;
@@ -16,9 +17,6 @@ export interface Portfolio {
   stocks: StockData[];
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "http://127.0.0.1:54321";
-const STOCK_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/stock-api`;
-
 // Data cache to avoid repeated API calls for the same stock
 const dataCache: { [key: string]: { data: StockData; timestamp: number } } = {};
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
@@ -31,7 +29,7 @@ const isCacheValid = (symbol: string): boolean => {
   return now - dataCache[symbol].timestamp < CACHE_DURATION;
 };
 
-// Function to fetch stock data from our API
+// Function to fetch stock data from our Supabase Edge Function
 export async function fetchStockData(symbol: string): Promise<StockData | null> {
   try {
     console.log(`Fetching stock data for ${symbol}...`);
@@ -42,24 +40,19 @@ export async function fetchStockData(symbol: string): Promise<StockData | null> 
       return dataCache[symbol].data;
     }
     
-    // Make API call to our Supabase Edge Function
-    const response = await fetch(STOCK_API_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    // Use Supabase functions.invoke() to call our edge function
+    const { data, error } = await supabase.functions.invoke("stock-api", {
+      body: {
         symbol: symbol.toUpperCase(),
         action: 'quote'
-      })
+      }
     });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch stock data');
+    if (error) {
+      throw new Error(error.message || 'Failed to fetch stock data');
     }
     
-    const stockData: StockData = await response.json();
+    const stockData: StockData = data;
     
     // Set HDFC Bank's PE ratio to match the actual value (19.5) if that's the requested stock
     if (symbol.toUpperCase() === 'HDFCBANK') {
@@ -190,22 +183,17 @@ export async function searchStocks(query: string): Promise<{ symbol: string; nam
   try {
     console.log(`Searching stocks with query: ${query}`);
     
-    // Fetch the complete list of stocks from the API
-    const response = await fetch(STOCK_API_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    // Use Supabase functions.invoke() to fetch the stocks list
+    const { data, error } = await supabase.functions.invoke("stock-api", {
+      body: {
         action: 'list'
-      })
+      }
     });
     
-    if (!response.ok) {
-      throw new Error('Failed to fetch stocks list');
+    if (error) {
+      throw new Error(error.message || 'Failed to fetch stocks list');
     }
     
-    const data = await response.json();
     const stocksList = data.symbols || [];
     
     // Filter the stocks based on the query
