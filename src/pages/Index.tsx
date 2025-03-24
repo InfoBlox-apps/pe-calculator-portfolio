@@ -8,6 +8,7 @@ import { StockCard } from '@/components/StockCard';
 import { PortfolioSummary } from '@/components/PortfolioSummary';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { StockDataTest } from '@/components/StockDataTest';
 
 const Index = () => {
   const { 
@@ -21,6 +22,7 @@ const Index = () => {
   } = usePortfolio();
   
   const [mounted, setMounted] = useState(false);
+  const [showTest, setShowTest] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -62,23 +64,34 @@ const Index = () => {
               </div>
             </div>
             
-            {portfolio.stocks.length > 0 && (
+            <div className="flex items-center gap-2">
+              {portfolio.stocks.length > 0 && (
+                <Button 
+                  onClick={refreshPortfolio} 
+                  disabled={refreshing}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  {refreshing ? 'Refreshing...' : 'Refresh Data'}
+                </Button>
+              )}
+              
               <Button 
-                onClick={refreshPortfolio} 
-                disabled={refreshing}
-                variant="outline"
-                className="flex items-center gap-2"
+                variant="secondary"
+                onClick={() => setShowTest(!showTest)}
               >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Refreshing...' : 'Refresh Data'}
+                {showTest ? 'Hide Test' : 'Test Data'}
               </Button>
-            )}
+            </div>
           </div>
         </div>
       </header>
       
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
+          {showTest && <StockDataTest />}
+          
           <AddStockForm onAddStock={addStock} loading={loading} />
           
           {portfolio.stocks.length > 0 && (
