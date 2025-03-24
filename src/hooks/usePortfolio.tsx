@@ -1,6 +1,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { StockData, Portfolio, savePortfolio, loadPortfolio, fetchStockData } from '@/services/stockService';
+import { 
+  StockData, 
+  Portfolio, 
+  savePortfolio, 
+  loadPortfolio, 
+  fetchStockData,
+  isPortfolioDataStale 
+} from '@/services/stockService';
 import { toast } from "sonner";
 
 export function usePortfolio() {
@@ -13,8 +20,44 @@ export function usePortfolio() {
     const savedPortfolio = loadPortfolio();
     if (savedPortfolio && savedPortfolio.stocks) {
       setPortfolio(savedPortfolio);
+      
+      // Check if data is stale and needs refreshing
+      if (isPortfolioDataStale(savedPortfolio)) {
+        console.log("Portfolio data is stale, refreshing...");
+        refreshPortfolioData(savedPortfolio);
+      }
     }
   }, []);
+
+  // Refresh stale portfolio data
+  const refreshPortfolioData = async (portfolioToRefresh: Portfolio) => {
+    if (!portfolioToRefresh?.stocks?.length) return;
+    
+    setRefreshing(true);
+    try {
+      const updatedStocks = await Promise.all(
+        (portfolioToRefresh.stocks || []).map(async (stock) => {
+          const updated = await fetchStockData(stock.symbol);
+          return updated || stock;
+        })
+      );
+      
+      const updatedPortfolio = {
+        ...portfolioToRefresh,
+        stocks: updatedStocks
+      };
+      
+      setPortfolio(updatedPortfolio);
+      savePortfolio(updatedPortfolio);
+      
+      toast.success('Portfolio data refreshed');
+    } catch (error) {
+      console.error('Error refreshing portfolio data:', error);
+      toast.error('Failed to refresh portfolio data');
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   // Save the portfolio to localStorage whenever it changes
   useEffect(() => {

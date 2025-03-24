@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Info } from 'lucide-react';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { AddStockForm } from '@/components/AddStockForm';
 import { StockCard } from '@/components/StockCard';
 import { PortfolioSummary } from '@/components/PortfolioSummary';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Index = () => {
   const { 
@@ -40,9 +41,21 @@ const Index = () => {
               <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
                 NSE P/E Calculator
               </h1>
-              <p className="text-muted-foreground">
-                Track and analyze P/E ratios for your NSE India portfolio
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-muted-foreground">
+                  Track and analyze P/E ratios for your NSE India portfolio
+                </p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">Stock data is updated daily. Last price: EOD values.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
             
             {portfolio.stocks.length > 0 && (
@@ -105,7 +118,7 @@ const Index = () => {
       <footer className="py-6 border-t border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <p className="text-center text-sm text-muted-foreground">
-            NSE P/E Calculator — Stock data is for demonstration purposes only.
+            NSE P/E Calculator — Data is updated daily (simulated for demonstration).
           </p>
         </div>
       </footer>
